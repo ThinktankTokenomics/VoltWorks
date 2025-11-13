@@ -1,3 +1,36 @@
+// ===== ADMIN SECURITY CHECK =====
+// Add this at the TOP of admin.js
+
+// Security check - prevent unauthorized access
+if (!isAdminLoggedIn()) {
+    document.getElementById('admin-panel').classList.add('translate-x-full');
+    throw new Error('Unauthorized access to admin panel');
+}
+
+// Add logout functionality
+function addLogoutButton() {
+    const logoutBtn = document.createElement('button');
+    logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt mr-2"></i>Logout';
+    logoutBtn.className = 'px-4 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition duration-300';
+    logoutBtn.addEventListener('click', function() {
+        localStorage.removeItem('adminAuthenticated');
+        document.getElementById('admin-panel').classList.add('translate-x-full');
+        alert('Logged out successfully!');
+    });
+    
+    // Add logout button to admin panel header
+    const adminHeader = document.querySelector('#admin-panel .flex.justify-between');
+    if (adminHeader) {
+        adminHeader.appendChild(logoutBtn);
+    }
+}
+
+// Call this when admin panel loads
+addLogoutButton();
+
+// Your existing admin.js code continues below...
+
+
 // Update project status
 function updateProjectStatus(projectId, status) {
     const projects = getProjects();
