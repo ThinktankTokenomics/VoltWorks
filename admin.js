@@ -128,4 +128,42 @@ function changeProjectStatus(projectId) {
     const nextStatus = statuses[nextIndex];
     
     updateProjectStatus(projectId, nextStatus);
-    loadProjectsToAdmin(document.getElementById('status-filter').
+    loadProjectsToAdmin(document.getElementById('status-filter').value, document.getElementById('search-projects').value);
+}
+
+// Admin panel controls
+document.getElementById('refresh-projects').addEventListener('click', function() {
+    loadProjectsToAdmin(document.getElementById('status-filter').value, document.getElementById('search-projects').value);
+});
+
+document.getElementById('export-projects').addEventListener('click', function() {
+    const projects = getProjects();
+    if (projects.length === 0) {
+        alert('No projects to export');
+        return;
+    }
+    
+    let csv = 'Name,Email,Phone,College,Project Name,Deadline,Budget,Description,Status,Created At\n';
+    
+    projects.forEach(project => {
+        csv += `"${project.name}","${project.email}","${project.phone}","${project.college || ''}","${project.project_name}","${project.deadline || ''}","${project.budget || ''}","${project.description.replace(/"/g, '""')}","${project.status}","${project.createdAt}"\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `voltworks-projects-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
+
+document.getElementById('status-filter').addEventListener('change', function() {
+    loadProjectsToAdmin(this.value, document.getElementById('search-projects').value);
+});
+
+document.getElementById('search-projects').addEventListener('input', function() {
+    loadProjectsToAdmin(document.getElementById('status-filter').value, this.value);
+});
