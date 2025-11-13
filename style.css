@@ -153,3 +153,80 @@ body {
     transform: translateY(-5px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
+
+/* ===== ADMIN LOGIN MODAL STYLES ===== */
+/* Add these at the END of your style.css file */
+
+.modal-backdrop {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.admin-logged-in .admin-only {
+    display: block;
+}
+
+.admin-logged-in .admin-only.hidden {
+    display: none;
+}
+
+/* Modal specific styles */
+#admin-login-modal {
+    z-index: 9999;
+}
+
+#admin-login-modal .cyber-card {
+    max-width: 400px;
+    width: 90%;
+    margin: 0 auto;
+}
+
+/* Ensure modal is above everything */
+.fixed.inset-0 {
+    z-index: 50;
+}
+
+/* Smooth transitions for modal */
+.hidden {
+    display: none !important;
+}
+
+.fixed {
+    position: fixed;
+}
+
+.inset-0 {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+/* Modal animation (optional) */
+#admin-login-modal {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#admin-login-modal .cyber-card {
+    animation: slideUp 0.3s ease-in-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
