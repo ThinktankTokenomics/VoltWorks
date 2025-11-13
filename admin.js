@@ -1,8 +1,6 @@
 // ===== ADMIN SECURITY CHECK =====
-// Add this at the TOP of admin.js
-
 // Security check - prevent unauthorized access
-if (!isAdminLoggedIn()) {
+if (!localStorage.getItem('adminAuthenticated') || localStorage.getItem('adminAuthenticated') !== 'true') {
     document.getElementById('admin-panel').classList.add('translate-x-full');
     throw new Error('Unauthorized access to admin panel');
 }
@@ -25,41 +23,10 @@ function addLogoutButton() {
     }
 }
 
-// Call this when admin panel loads
-addLogoutButton();
-
-// Your existing admin.js code continues below...
-
-
-// Update project status
-function updateProjectStatus(projectId, status) {
-    const projects = getProjects();
-    const projectIndex = projects.findIndex(p => p.id === projectId);
-    if (projectIndex !== -1) {
-        projects[projectIndex].status = status;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
-        return true;
-    }
-    return false;
+// Get all projects from localStorage
+function getProjects() {
+    return JSON.parse(localStorage.getItem('voltworks_projects') || '[]');
 }
-
-// Delete a project
-function deleteProject(projectId) {
-    const projects = getProjects();
-    const filteredProjects = projects.filter(p => p.id !== projectId);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredProjects));
-    return filteredProjects.length !== projects.length;
-}
-
-// Admin panel functionality
-document.getElementById('admin-toggle').addEventListener('click', function() {
-    document.getElementById('admin-panel').classList.remove('translate-x-full');
-    loadProjectsToAdmin();
-});
-
-document.getElementById('close-admin').addEventListener('click', function() {
-    document.getElementById('admin-panel').classList.add('translate-x-full');
-});
 
 // Load projects to admin panel
 function loadProjectsToAdmin(filter = 'all', search = '') {
@@ -71,6 +38,7 @@ function loadProjectsToAdmin(filter = 'all', search = '') {
             <div class="text-center py-8 text-gray-500">
                 <i class="fas fa-inbox text-4xl mb-4"></i>
                 <p>No project requests yet</p>
+                <p class="text-sm mt-2">When users submit the form, their requests will appear here</p>
             </div>
         `;
         return;
@@ -155,13 +123,36 @@ function loadProjectsToAdmin(filter = 'all', search = '') {
 
 function changeProjectStatus(projectId) {
     const statuses = ['new', 'contacted', 'quoted', 'completed'];
-    const currentStatus = getProjects().find(p => p.id === projectId).status;
+    const projects = getProjects();
+    const project = projects.find(p => p.id === projectId);
+    
+    if (!project) return;
+    
+    const currentStatus = project.status;
     const currentIndex = statuses.indexOf(currentStatus);
     const nextIndex = (currentIndex + 1) % statuses.length;
     const nextStatus = statuses[nextIndex];
     
     updateProjectStatus(projectId, nextStatus);
     loadProjectsToAdmin(document.getElementById('status-filter').value, document.getElementById('search-projects').value);
+}
+
+function updateProjectStatus(projectId, status) {
+    const projects = getProjects();
+    const projectIndex = projects.findIndex(p => p.id === projectId);
+    if (projectIndex !== -1) {
+        projects[projectIndex].status = status;
+        localStorage.setItem('voltworks_projects', JSON.stringify(projects));
+        return true;
+    }
+    return false;
+}
+
+function deleteProject(projectId) {
+    const projects = getProjects();
+    const filteredProjects = projects.filter(p => p.id !== projectId);
+    localStorage.setItem('voltworks_projects', JSON.stringify(filteredProjects));
+    return filteredProjects.length !== projects.length;
 }
 
 // Admin panel controls
@@ -200,3 +191,7 @@ document.getElementById('status-filter').addEventListener('change', function() {
 document.getElementById('search-projects').addEventListener('input', function() {
     loadProjectsToAdmin(document.getElementById('status-filter').value, this.value);
 });
+
+// Initialize admin panel
+addLogoutButton();
+loadProjectsToAdmin();
